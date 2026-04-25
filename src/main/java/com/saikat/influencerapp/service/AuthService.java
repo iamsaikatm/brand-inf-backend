@@ -5,6 +5,7 @@ import com.saikat.influencerapp.dto.SignupRequest;
 import com.saikat.influencerapp.entity.User;
 import com.saikat.influencerapp.exception.AuthException;
 import com.saikat.influencerapp.repository.UserRepository;
+import com.saikat.influencerapp.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     public User signup(SignupRequest request) {
         User user = new User();
         user.setName(request.getName());
@@ -26,20 +30,15 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public User login(LoginRequest request) {
+    public String login(LoginRequest request) {
 
-        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
-
-        if (userOptional.isEmpty()) {
-            throw new AuthException("User not found");
-        }
-
-        User user = userOptional.get();
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!user.getPassword().equals(request.getPassword())) {
-            throw new AuthException("Invalid password");
+            throw new RuntimeException("Invalid password");
         }
 
-        return user;
+        return jwtUtil.generateToken(user.getEmail());
     }
 }

@@ -3,6 +3,7 @@ package com.saikat.influencerapp.controller;
 import com.saikat.influencerapp.dto.CampaignRequest;
 import com.saikat.influencerapp.entity.Campaign;
 import com.saikat.influencerapp.service.CampaignService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +17,11 @@ public class CampaignController {
     private CampaignService service;
 
     @PostMapping
-    public Campaign create(@RequestBody CampaignRequest request) {
-        return service.create(request);
+    public Campaign create(@RequestBody CampaignRequest request, HttpServletRequest httpRequest) {
+
+        String email = (String) httpRequest.getAttribute("email");
+
+        return service.create(request, email);
     }
 
     @GetMapping("/{brandId}")

@@ -2,7 +2,9 @@ package com.saikat.influencerapp.service;
 
 import com.saikat.influencerapp.dto.CampaignRequest;
 import com.saikat.influencerapp.entity.Campaign;
+import com.saikat.influencerapp.entity.User;
 import com.saikat.influencerapp.repository.CampaignRepository;
+import com.saikat.influencerapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +16,16 @@ public class CampaignService {
     @Autowired
     private CampaignRepository repository;
 
-    public Campaign create(CampaignRequest request) {
+    @Autowired
+    private UserRepository userRepository;
+
+    public Campaign create(CampaignRequest request, String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Campaign campaign = new Campaign();
-        campaign.setBrandId(request.getBrandId());
+        campaign.setBrandId(user.getId()); // ✅ from token
         campaign.setTitle(request.getTitle());
         campaign.setDescription(request.getDescription());
         campaign.setBudget(request.getBudget());
